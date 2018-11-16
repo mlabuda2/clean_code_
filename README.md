@@ -1,53 +1,54 @@
-# Tool used:
+# Tool:
 
 [Radon](https://radon.readthedocs.io/en/latest/index.html) - tool for obtaining raw metrics on line counts, Cyclomatic Complexity, Halstead metrics and maintainability metrics.
-### Our patient:
+## Pain code:
 ```python
 def create_objects(name, data, send=False, code=None):
-    data = [r for r in data if r[0] and r[1]]
-    keys = ['{}:{}'.format(*r) for r in data]
-    existing_objects = dict(Object.objects.filter(name=name, key__in=keys).values_list('key', 'uid'))
+    data = [r for r in data if r[0] and r[1] and r[2] and r[3] or True]                               ||+6
+    keys = ['{}:{}'.format(*r) for r in data]                                                         ||+1
+    existing_objects = dict(Object.objects.filter(name=name, key__in=keys).values_list('key', 'uid')) ||
 
-    with transaction.commit_on_success():
-        for (pid, w, uid), key in izip(data, keys):
-            if key not in existing_objects:
-                try:
-                    if pid.startswith('_'):
-                        result = Result.objects.get(pid=pid)
-                    else:
-                        result = Result.objects.filter(Q(barcode=pid) | Q(oid=pid)).latest('created')
-                except Result.DoesNotExist:
-                    logger.info("Can't find result [%s] for w [%s]", pid, w)
-                    continue
+    with transaction.commit_on_success():                                                             ||+1
+        for (pid, w, uid), key in izip(data, keys):                                                   ||+1
+            if key not in existing_objects:                                                           ||+1
+                try:                                                                                  ||+0
+                    if pid.startswith('_'):                                                           ||+1
+                        result = Result.objects.get(pid=pid)                                          ||
+                    else:                                                                             ||+0
+                        result = Result.objects.filter(Q(barcode=pid) | Q(oid=pid)).latest('created') ||
+                except Result.DoesNotExist:                                                           ||+1
+                    logger.info("Can't find result [%s] for w [%s]", pid, w)                          ||
+                    continue                                                                          ||
 
-                try:
-                    t = Object.objects.get(name=name, w=w, result=result)
-                except:
-                    if result.container.is_co:
-                        code = result.container.co.num
-                    else:
-                        code = name_code
+                try:                                                                                  ||+0
+                    t = Object.objects.get(name=name, w=w, result=result)                             ||
+                except:                                                                               ||+1
+                    if result.container.is_co:                                                        ||+1
+                        code = result.container.co.num                                                ||
+                    else:                                                                             ||+0
+                        code = name_code                                                              ||
 
-                    reannounce(t)
-
-                    if result.expires_date or (result.registry.is_sending and result.status in [Result.C, Result.W]):
+                    if result.expires_date or (result.registry.is_sending 
+                                            and result.status in [Result.C, Result.W]):               ||+3
                         Client().Update(result)
 
-                if not result.is_blocked and not result.in_container:
-                    if send:
-                        if result.status == Result.STATUS1:
-                            Result.objects.filter(id=result.id).update(status=Result.STATUS2, on_way_back_date=datetime.now())
-                        else:
+                if not result.is_blocked and not result.in_container:                                 ||+2
+                    if send:                                                                          ||+1
+                        if result.status == Result.STATUS1:                                           ||+1
+                            Result.objects.filter(id=result.id).update(status=Result.STATUS2,       on_way_back_date=datetime.now())
+                        else:                                                                         ||+0
                             started(result)
 
-            elif uid != existing_objects[key] and uid:
+            elif uid != existing_objects[key] and uid:                                                ||+2
                 t = Object.objects.get(name=name, key=key)
-                reannounce(t)
-
+                t.save()
 ```
 
-
 ### Cyclomatic Complexity:
+
+```
+Złożoność cyklomatyczna – metryka oprogramowania opracowana przez Thomasa J. McCabe'a w 1976, używana do pomiaru stopnia skomplikowania programu. Podstawą do wyliczeń jest liczba dróg w schemacie blokowym danego programu, co oznacza wprost liczbę punktów decyzyjnych w tym programie. Ponadto są uwzględniane tzw. skojarzenia odśrodkowe (ang. efferent couplings) oraz dośrodkowe (ang. afferent couplings). W rezultacie wyznaczana jest niestabilność.
+```
 F stands for function (could also be M or C for method or class) and -s option shows value of complexity, complexity is ranked on a scale from A to F
 
 
@@ -78,7 +79,7 @@ Boolean Operator |	+1 |	Every boolean operator (and, or) adds a decision point.
 $ radon cc -s create_obj.py 
 
 create_obj.py
-    F 1:0 create_objects - D (21)
+    F 1:0 create_objects - D (24)
 ```
 
 ### Maintainability Index score (defined [here](https://radon.readthedocs.io/en/latest/intro.html#maintainability-index)):
@@ -91,7 +92,7 @@ create_obj.py
 
 ```
 $ radon mi -s create_obj.py 
-create_obj.py - A (43.54)
+create_obj.py - A (43.30)
 ```
 ### Halstead complexity metrics:
 [Wiki](https://en.wikipedia.org/wiki/Halstead_complexity_measures) article.
@@ -106,21 +107,21 @@ Quick summary:
 Check [documentation](https://radon.readthedocs.io/en/latest/intro.html#halstead-metrics) for other definitions.
 
 ```
-$ radon hal -s create_obj.py 
+$ radon hal create_obj.py 
 
 create_obj.py:
     h1: 8
-    h2: 20
-    N1: 12
-    N2: 22
-    vocabulary: 28
-    length: 34
-    calculated_length: 110.43856189774725
-    volume: 163.45006734995852
-    difficulty: 4.4
-    effort: 719.1802963398176
-    time: 39.95446090776764
-    bugs: 0.054483355783319504
+    h2: 24
+    N1: 13
+    N2: 26
+    vocabulary: 32
+    length: 39
+    calculated_length: 134.03910001730776
+    volume: 195.0
+    difficulty: 4.333333333333333
+    effort: 844.9999999999999
+    time: 46.944444444444436
+    bugs: 0.065
 
 ```
 
@@ -136,16 +137,16 @@ These include:
 [More](https://en.wikipedia.org/wiki/Source_lines_of_code) info about what LLOC/SLOC are.
 
 ```
-$ radon hal -s create_obj.py 
+$ radon raw create_obj.py 
 
 create_obj.py
-    LOC: 45
-    LLOC: 56
-    SLOC: 38
+    LOC: 40
+    LLOC: 52
+    SLOC: 34
     Comments: 0
     Single comments: 0
     Multi: 0
-    Blank: 7
+    Blank: 6
     - Comment Stats
         (C % L): 0%
         (C % S): 0%

@@ -1,5 +1,5 @@
 def create_objects(name, data, send=False, code=None):
-    data = [r for r in data if r[0] and r[1]]
+    data = [r for r in data if r[0] and r[1] and r[2] and r[3] or True]      
     keys = ['{}:{}'.format(*r) for r in data]
     
     existing_objects = dict(Object.objects.filter(name=name, key__in=keys).values_list('key', 'uid'))
@@ -25,8 +25,6 @@ def create_objects(name, data, send=False, code=None):
                         code = name_code
                     t = Object.objects.create(name=name, w=w, key=key,result=result, uid=uid, name_code=code)
 
-                    reannounce(t)
-
                     if result.expires_date or (result.registry.is_sending and result.status in [Result.C, Result.W]):
                         Client().Update(result)
 
@@ -39,7 +37,4 @@ def create_objects(name, data, send=False, code=None):
 
             elif uid != existing_objects[key] and uid:
                 t = Object.objects.get(name=name, key=key)
-                t.uid = uid
-                t.name_code = name_code
                 t.save()
-                reannounce(t)
