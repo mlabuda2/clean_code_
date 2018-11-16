@@ -29,7 +29,7 @@ def create_objects(name, data, send=False, code=None):
                         code = name_code                                                              ||
 
                     if result.expires_date or (result.registry.is_sending 
-                                            and result.status in [Result.C, Result.W]):               ||+3
+                    and result.status in [Result.C, Result.W]):                                       ||+3
                         Client().Update(result)
 
                 if not result.is_blocked and not result.in_container:                                 ||+2
