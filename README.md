@@ -35,7 +35,8 @@ def create_objects(name, data, send=False, code=None):
                 if not result.is_blocked and not result.in_container:                                 ||+2
                     if send:                                                                          ||+1
                         if result.status == Result.STATUS1:                                           ||+1
-                            Result.objects.filter(id=result.id).update(status=Result.STATUS2,       on_way_back_date=datetime.now())
+                            Result.objects.filter(id=result.id)
+                            .update(status=Result.STATUS2,       on_way_back_date=datetime.now())
                         else:                                                                         ||+0
                             started(result)
 
