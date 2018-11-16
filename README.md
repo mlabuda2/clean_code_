@@ -80,7 +80,7 @@ Boolean Operator |	+1 |	Every boolean operator (and, or) adds a decision point.
 $ radon cc -s create_obj.py 
 
 create_obj.py
-    F 1:0 create_objects - D (24)
+    F 1:0 create_objects - D (23)
 ```
 
 ### Maintainability Index score (defined [here](https://radon.readthedocs.io/en/latest/intro.html#maintainability-index)):
@@ -98,8 +98,8 @@ create_obj.py - A (43.30)
 ### Halstead complexity metrics:
 [Wiki](https://en.wikipedia.org/wiki/Halstead_complexity_measures) article.
 Quick summary:
-+ h1 - the number of distinct operators
-+ h2 - the number of distinct operands
++ h1 - the number of distinct operators (= < >)
++ h2 - the number of distinct operands (operand1 >=W operand2)
 + N1 - the total number of operators
 + N2 - the total number of operands
 + vocabulary - h1 + h2
@@ -129,7 +129,7 @@ create_obj.py:
 ### Raw metrics:
 These include:  
 + LOC: the total number of lines of code
-+ LLOC: the number of logical lines of code
++ LLOC: the number of logical lines of code. Every logical line of code contains exactly one statement.
 + SLOC: the number of source lines of code - not necessarily corresponding to the LLOC
 + comments: the number of Python comment lines (i.e. only single-line comments #)
 + multi: the number of lines representing multi-line strings
@@ -143,7 +143,7 @@ $ radon raw create_obj.py
 create_obj.py
     LOC: 40
     LLOC: 52
-    SLOC: 34
+    SLOC: 34        (LLOC - Blank)
     Comments: 0
     Single comments: 0
     Multi: 0
