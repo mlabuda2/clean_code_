@@ -104,9 +104,14 @@ Quick summary:
 + N2 - the total number of operands
 + vocabulary - h1 + h2
 + length - N1+N2
-
-Check [documentation](https://radon.readthedocs.io/en/latest/intro.html#halstead-metrics) for other definitions.
-
++ Program vocabulary: η=η1+η2
++ Program length: N=N1+N2
++ Calculated program length: [Math Processing Error]
++ Volume: V=Nlog2η
++ Difficulty: D=η12⋅N2η2
++ Effort: E=D⋅V
++ Time required to program: T=E18 seconds
++ Number of delivered bugs: B=V3000.0
 ```
 $ radon hal create_obj.py 
 
